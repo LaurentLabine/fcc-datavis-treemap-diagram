@@ -1,206 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="https://d3js.org/topojson.v2.min.js"></script>
-    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-    <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
-    <title>FCC Tree Map Challenge</title>
-    <link rel="stylesheet" href="index.css">
-</head>
-<body>
-    <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
-    <h1 id="title">Tree Maps are Useful!</h1>
-    <div id="description">
-      Video Game Sales
-    </div>
-    <div>
-</div>
-
-<script type="text/javascript">
-
-const w = 1000
-const h = 700
-const margin = {top:30, bottom:30, left:30, right:30}
-const legendBarHeight = 50
-var data = d3.map();
-
-// The svg
-const svg = d3.select("body")
-                  .append("svg")
-                  .attr("width", w)
-                  .attr("height", h)
-                  .append("g");
-
-
-//inspired from : https://stackoverflow.com/questions/15690706/recursively-looping-through-an-object-to-build-a-property-list
-
-//Function that iterates through 
-function extractValue(obj,arr) {//decomposes and sorts through an object and outputs in an array
-    for (var property in obj) {//iterating through object properties
-        if (obj.hasOwnProperty(property)) {
-            if (typeof obj[property] == "object") {
-              extractValue(obj[property],arr);
-            }
-            else if(obj.hasOwnProperty(property)){
-              if(property === "value" )
-                arr.push(parseFloat(obj.value));
-            }
-        }
-    }
-}
-
-
-//tutorial Followed from : https://www.d3-graph-gallery.com/graph/treemap_json.html
-// and https://observablehq.com/@d3/treemap
-d3.queue()
-  .defer(d3.json, "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json")
-  .await(ready);
-
-function ready(error,videoGameSales) {
-    if(error)
-    throw error;
-
-    const root = d3.hierarchy(videoGameSales).sum((d) => d.value) // Here the size of each leave is given in the 'value' field in input data
-
-    d3.treemap()
-    .size([w, h])
-    .padding(2)
-    (root)
-
-    var values = []
-      extractValue(videoGameSales,values)
-
-    const cScale = d3.scaleSequential()//Color scales to fill the bars
-                    .interpolator(d3.interpolateCool)
-                    .domain([-10,d3.max(values)]);
-
-
-      var Tooltip = d3.select("body")
-        .append("div")
-        .style("opacity", 0)
-        .attr("class", "tooltip")
-        .attr("id","tooltip")
-        .style("background-color", "white")
-        .style("border", "solid")
-        .style("border-width", "2px")
-        .style("border-radius", "5px")
-        .style("padding", "5px")
-
-    // Three function that change the tooltip when user hover / move / leave a cell
-    var mouseover = function(d) {
-        Tooltip
-        .style("opacity", 1)
-        d3.select(this)
-        .style("stroke", "black")
-        .style("opacity", 1)
-    }
-    var mousemove = function(d) {
-
-        Tooltip
-        .html(d.data.name + "<br>" + d.data.category + "<br>" + d.data.value)
-        .attr("data-value",d.data.value)
-        .style("top", (d3.event.pageY + 16) + "px")
-        .style("left", (d3.event.pageX + 16) + "px");
-
-    }
-    var mouseleave = function(d) {
-        Tooltip
-        .style("opacity", 0)
-        d3.select(this)
-        .style("stroke", "none")
+<meta charset="utf-8">
+<style>
+    body {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        margin: auto;
+        position: relative;
+        width: 960px;
     }
 
-    svg
-    .selectAll("rect")
-    .data(root.leaves())
-    .enter()
-    .append("rect")
-      .attr("class","tile")
-      .attr("data-name",(d) => d.data.name)
-      .attr("data-category",(d) => d.data.category)
-      .attr("data-value",(d) => d.data.value)
-      .attr('x', (d) => d.x0)
-      .attr('y',(d) => d.y0)
-      .attr('width', (d) => d.x1 - d.x0)
-      .attr('height', (d) => d.y1 - d.y0)
-      .style("stroke", "black")
-      .style("fill",(d) => cScale(d.value))
-      .on("mouseover", mouseover)
-      .on("mousemove", mousemove)
-      .on("mouseleave", mouseleave);
+    form {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
 
-      svg
-      .selectAll("text")
-      .data(root.leaves())
-      .enter()
-      .append("text")
-      .attr("x", (d) => d.x0+5)    // +10 to adjust position (more right)
-      .attr("y", (d) => d.y0+20)    // +20 to adjust position (lower)
-      .text((d) => d.data.name )
-      .attr("font-size", "8px")
-      .attr("fill",(d) => d.data.name );
+    .node {
+        border: solid 1px white;
+        font: 10px sans-serif;
+        line-height: 12px;
+        overflow: hidden;
+        position: absolute;
+        text-indent: 2px;
+    }
+</style>
+<form>
+    <label><input type="radio" name="mode" value="size" checked> Size</label>
+    <label><input type="radio" name="mode" value="count"> Count</label>
+</form>
+<script src="//d3js.org/d3.v4.min.js"></script>
+<script>
+    'use strict';
 
-      var legendBarHeight = 40;
+    const margin = { top: 40, right: 10, bottom: 10, left: 10 },
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom,
+        color = d3.scaleOrdinal().range(d3.schemeCategory20c);
 
-const SVGLegend = d3
-    .select("body")
-    .append("svg")
-    .attr("id","legend")
-    .attr("width", w)
-    .attr("height", h/5);
+    const treemap = d3.treemap().size([width, height]);
 
-SVGLegend.append("text")
-    .attr("x", margin.left)
-    .attr("y", margin.top/2)
-    .attr("text-anchor", "left")
-    .style("font-size", "16px")
-    .text("Video Game Sales Data Top 100");
+    const div = d3.select("body").append("div")
+        .style("position", "relative")
+        .style("width", (width + margin.left + margin.right) + "px")
+        .style("height", (height + margin.top + margin.bottom) + "px")
+        .style("left", margin.left + "px")
+        .style("top", margin.top + "px");
 
-//Inspired by drawScale function taken from : http://using-d3js.com/04_05_sequential_scales.html
+    d3.json("flare.json", function (error, data) {
+        if (error) throw error;
 
-var data = Array.from(Array(100).keys());
+        const root = d3.hierarchy(data, (d) => d.children)
+            .sum((d) => d.size);
 
-const legScale = d3.scaleSequential()//Color scales to fill the bars
-    .interpolator(d3.interpolateCool)
-    .domain([0,99]);
+        const tree = treemap(root);
 
-var xLegendScale = d3.scaleLinear()//Scale to draw
-    .domain([0,100])
-    .range([0, 580]);
+        const node = div.datum(root).selectAll(".node")
+            .data(tree.leaves())
+            .enter().append("div")
+            .attr("class", "node")
+            .style("left", (d) => d.x0 + "px")
+            .style("top", (d) => d.y0 + "px")
+            .style("width", (d) => Math.max(0, d.x1 - d.x0 - 1) + "px")
+            .style("height", (d) => Math.max(0, d.y1 - d.y0 - 1) + "px")
+            .style("background", (d) => color(d.parent.data.name))
+            .text((d) => d.data.name);
 
-var xLegendScale2 = d3.scaleLinear()//Equivalent scale to show data equivalent on scale
-    .domain([d3.min(values),d3.max(values)])
-    .range([0, 580]);
+        d3.selectAll("input").on("change", function change() {
+            const value = this.value === "count"
+                ? (d) => { return d.size ? 1 : 0; }
+                : (d) => { return d.size; };
 
-const xLegendAxis = d3.axisBottom()
-    .tickSizeOuter(0)
-    .scale(xLegendScale2);
+            const newRoot = d3.hierarchy(data, (d) => d.children)
+                .sum(value);
 
-    SVGLegend.append("g")
-    .attr("transform", "translate(" + margin.left + "," + (30 + legendBarHeight) + ")")
-    .attr("id","Legend rect")
-    .call(xLegendAxis);
+            node.data(treemap(newRoot).leaves())
+                .transition()
+                .duration(1500)
+                .style("left", (d) => d.x0 + "px")
+                .style("top", (d) => d.y0 + "px")
+                .style("width", (d) => Math.max(0, d.x1 - d.x0 - 1) + "px")
+                .style("height", (d) => Math.max(0, d.y1 - d.y0 - 1) + "px")
+        });
+    });
 
-    SVGLegend
-    .selectAll("rect")
-    .data(data)
-    .enter()
-    .append("rect")
-    .attr("x", (d) => margin.left + Math.floor(xLegendScale(d)))
-    .attr("y", 30)
-    .attr("class","legend-item")
-    .attr("height", legendBarHeight)
-    .attr("width", (d) => {
-        if (d == 99) {
-            return 6;
-        }
-        return Math.floor(xLegendScale(d+1)) - Math.floor(xLegendScale(d)) + 1;
-    })
-    .attr("fill", (d) => legScale(d));
-}
-    </script>
-</body>
-</html>
+</script>
