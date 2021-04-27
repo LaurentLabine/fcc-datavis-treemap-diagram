@@ -2,14 +2,14 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin: auto;
   position: relative;
+  width: 960px;
+  margin-top: 100px;
 }
-
 form {
-  position: absolute;
-  right: 10px;
-  top: 10px;
+  text-align: center;
+  position: relative;
+  top: -50px;
 }
-
 .node {
   border: solid 1px white;
   font: 10px sans-serif;
@@ -17,4 +17,14 @@ form {
   overflow: hidden;
   position: absolute;
   text-indent: 2px;
+}
+
+#tooltip {
+  position: relative;
+  padding: 10px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
 }
