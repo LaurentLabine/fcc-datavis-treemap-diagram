@@ -11,6 +11,7 @@
     <title></title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
 </head>
 
@@ -19,11 +20,14 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
     <form>
-        <label><input type="radio" name="mode" value="size" checked> Size</label>
-        <label><input type="radio" name="mode" value="count"> Count</label>
+        <label><input type="radio" name="selection" value=0 checked> Kickstarter Pledges</label>
+        <label><input type="radio" name="selection" value=1> Movie Sales</label>
+        <label><input type="radio" name="selection" value=2> Video Game Sales</label>
     </form>
+    <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
     <script src="//d3js.org/d3.v4.min.js"></script>
     <script src="./app.js"></script>
+    <script src="./datasets.js" type="module"></script>
     <script src="" async defer></script>
 </body>
 
