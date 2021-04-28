@@ -1,4 +1,4 @@
-
+import { Legend } from "./src/legend.js"
 
 const datasets = {
   kickstarter: {
@@ -31,6 +31,8 @@ const margin = { top: 10, right: 10, bottom: 10, left: 10 },
   width = 1000 - margin.left - margin.right,
   height = 700 - margin.top - margin.bottom;
 
+
+//tooltip stuff
 var tooltip = d3.select("body")
   .append("div")
   .style("opacity", 0)
@@ -47,8 +49,8 @@ var mouseover = function (d) {
   tooltip
     .style("opacity", 1)
   d3.select(this)
-    .style("stroke", "black")
-    .style("opacity", 1)
+    .style("stroke", "white")
+  // .style("opacity", 1)
 }
 var mousemove = function (d) {
 
@@ -63,7 +65,7 @@ var mouseleave = function (d) {
   tooltip
     .style("opacity", 0)
   d3.select(this)
-    .style("stroke", "none")
+    .style("stroke", "black")
 }
 
 
@@ -103,7 +105,6 @@ d3.queue()
     // Computing the position of each element of the hierarchy
     let treeLayout = d3.treemap()
       .size([width, height])
-      .padding(1)
       (root)
 
     let categories = root.leaves()
@@ -127,7 +128,7 @@ d3.queue()
       .attr('height', d => d.y1 - d.y0)
       // .attr("fill", d => { while (d.depth > 1) d = d.parent; return colorScale(d.value); })
       .attr("fill", d => colorScale(d.data.category))
-      .style("stroke", "black")
+      .style("stroke", "white")
       .on("mouseover", mouseover)
       .on("mousemove", mousemove)
       .on("mouseleave", mouseleave);
@@ -142,81 +143,15 @@ d3.queue()
       .attr("y", (d, i) => 10 + i * 10)    // +20 to adjust position (lower)
       .text(d => d)
 
-    const legendPadding = 100;
-
-    let legendContainer = d3.select("body")
-      .append("svg")
-      .attr("id", "legend")
-      .attr("class", "legend")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height)
-      .append("g")
-      .attr("id", "legend-container")
-      .attr("transform",
-        "translate(" + margin.left + "," + margin.top + ")")
-
-    console.log(data[selection].children)
-    legend = legendContainer.selectAll('g')
-      .data(data[selection].children)
-      .enter()
-      .append("g");
-
-    legend
-      .append('rect')
-      .attr('class', 'legend-item')
-      .attr('width', "15px")
-      .attr('height', "15px")
-      .attr('y', (d, i) => i % 4 * 20)
-      .attr('x', (d, i) => width / 4 * Math.floor(i / 4) + 20)
-      .attr("fill", d => colorScale(d.name))
-
-    legend
-      .append('text')
-      .attr('y', (d, i) => i % 4 * 20 + 12)
-      .attr('x', (d, i) => width / 4 * Math.floor(i / 4) + 20 + 20)
-      .style('font-size', "15px")
-      .text((d) => d.name);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    let legend = Legend(data[selection], { width, margin, height }, colorScale)
 
     //When Selection Changes
     d3.selectAll("input").on("change", function change(input) {
 
       selection = this.value
 
-      console.log("selection changed : " + selection)
-
       svg.selectAll("*").remove();
-      legendContainer.selectAll("*").remove();
-      // General update pattern
-      // let g = svg.selectAll('#treemap-container').data([null]);
-      // g = g.enter().append('g')
-      //   .merge(g)
-      //   .attr('class', 'treemap-container')
-      //   // Margin convention
-      //   .attr('transform', `translate(${margin.left}, ${margin.top})`);
+      d3.selectAll("Body").selectAll("#legend").remove();
 
       // //Solution found here : https://bl.ocks.org/ganezasan/52fced34d2182483995f0ca3960fe228
       // //     const newRoot = d3.hierarchy(data, (d) => d.children)
@@ -231,11 +166,6 @@ d3.queue()
       // //       .style("height", (d) => Math.max(0, d.y1 - d.y0  - 1) + "px")
       // // });
 
-      // // Give the data to this cluster layout:
-      // const newRoot = d3.hierarchy(data[selection])
-      //   .sum((d) => d.value)
-      //   .sort((a, b) => b.value - a.value) // Here the size of each leave is given in the 'value' field in input data
-
       // Give the data to this cluster layout:
       root = d3.hierarchy(data[selection])
         .sum((d) => d.value)
@@ -244,7 +174,6 @@ d3.queue()
       // Computing the position of each element of the hierarchy
       treeLayout = d3.treemap()
         .size([width, height])
-        .padding(1)
         (root)
 
       // use this information to add rectangles:
@@ -266,7 +195,7 @@ d3.queue()
         .attr('height', d => d.y1 - d.y0)
         // .attr("fill", d => { while (d.depth > 1) d = d.parent; return colorScale(d.value); })
         .attr("fill", d => colorScale(d.data.category))
-        .style("stroke", "black")
+        .style("stroke", "white")
 
       cell.append("text")
         .selectAll("tspan")
@@ -278,36 +207,38 @@ d3.queue()
         .attr("y", (d, i) => 10 + i * 10)    // +20 to adjust position (lower)
         .text(d => d)
 
-      legend = legendContainer.selectAll('g')
-        .data(data[selection].children)
-        .enter()
-        .append("g");
+      legend = Legend(data[selection], { width, margin, height }, colorScale)
 
-      legend
-        .append('rect')
-        .attr('width', "15px")
-        .attr('height', "15px")
-        .attr('y', (d, i) => i % 4 * 20)
-        .attr('x', (d, i) => width / 4 * Math.floor(i / 4) + 20)
-        .attr("fill", d => colorScale(d.name))
+      // legend = legendContainer.selectAll('g')
+      //   .data(data[selection].children)
+      //   .enter()
+      //   .append("g");
 
-      legend
-        .append('text')
-        .attr('y', (d, i) => i % 4 * 20 + 12)
-        .attr('x', (d, i) => width / 4 * Math.floor(i / 4) + 20 + 20)
-        .style('font-size', "15px")
-        .text((d) => d.name);
+      // legend
+      //   .append('rect')
+      //   .attr('width', "15px")
+      //   .attr('height', "15px")
+      //   .attr('y', (d, i) => i % 4 * 20)
+      //   .attr('x', (d, i) => width / 4 * Math.floor(i / 4) + 20)
+      //   .attr("fill", d => colorScale(d.name))
 
-      var tooltip = d3.select("body")
-        .append("div")
-        .style("opacity", 0)
-        .attr("class", "tooltip")
-        .attr("id", "tooltip")
-        .style("background-color", "white")
-        .style("border", "solid")
-        .style("border-width", "2px")
-        .style("border-radius", "5px")
-        .style("padding", "5px")
+      // legend
+      //   .append('text')
+      //   .attr('y', (d, i) => i % 4 * 20 + 12)
+      //   .attr('x', (d, i) => width / 4 * Math.floor(i / 4) + 20 + 20)
+      //   .style('font-size', "15px")
+      //   .text((d) => d.name);
+
+      // var tooltip = d3.select("body")
+      //   .append("div")
+      //   .style("opacity", 0)
+      //   .attr("class", "tooltip")
+      //   .attr("id", "tooltip")
+      //   .style("background-color", "white")
+      //   .style("border", "solid")
+      //   .style("border-width", "2px")
+      //   .style("border-radius", "5px")
+      //   .style("padding", "5px")
 
       // Three function that change the tooltip when user hover / move / leave a cell
       var mouseover = function (d) {
