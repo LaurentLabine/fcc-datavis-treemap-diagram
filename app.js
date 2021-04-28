@@ -29,13 +29,12 @@ const margin = { top: 40, right: 10, bottom: 10, left: 10 },
 
 const treemap = d3.treemap().size([width, height]);
 
-const div = d3.select("body").append("div")
+const div = d3.select("#my_dataviz").append("div")
   .attr("id", "table")
+  .style("display", "inline-block")
   .style("width", (width + margin.left + margin.right) + "px")
   .style("height", (height + margin.top + margin.bottom) + "px")
-  .style("left", margin.left + "px")
-  .style("top", margin.top + "px");
-
+  .style("top", margin.top + "px")
 
 d3.queue()
   .defer(d3.json, datasets.kickstarter.url)
@@ -80,9 +79,8 @@ d3.queue()
       Tooltip
         .html(d.data.name + "<br>" + d.data.category + "<br>" + d.data.value)
         .attr("data-value", d.data.value)
-        .style("top", (d3.event.pageY - 600) + "px")
-        .style("left", (d3.event.pageX - 300) + "px")
-        .style("width", "100px");
+        .style("top", (d3.event.pageY + 16) + "px")
+        .style("left", (d3.event.pageX + 16) + "px");
 
     }
     var mouseleave = function (d) {
@@ -102,8 +100,8 @@ d3.queue()
       .data(tree.leaves())
       .enter().append("div")
       .attr("class", "node")
-      .style("left", (d) => d.x0 + "px")
-      .style("top", (d) => d.y0 + "px")
+      .style("left", (d) => margin.left + d.x0 + "px")
+      .style("top", (d) => margin.top + d.y0 + "px")
       .style("width", (d) => Math.max(0, d.x1 - d.x0 - 1) + "px")
       .style("height", (d) => Math.max(0, d.y1 - d.y0 - 1) + "px")
       .style("background", (d) => colorScale(d.parent.data.name))
@@ -121,8 +119,8 @@ d3.queue()
       node.data(treemap(newRoot).leaves())
         .transition()
         .duration(1500)
-        .style("left", (d) => d.x0 + "px")
-        .style("top", (d) => d.y0 + "px")
+        .style("left", (d) => margin.left + d.x0 + "px")
+        .style("top", (d) => margin.top + d.y0 + "px")
         .style("width", (d) => Math.max(0, d.x1 - d.x0 - 1) + "px")
         .style("height", (d) => Math.max(0, d.y1 - d.y0 - 1) + "px")
         .style("background", (d) => colorScale(d.parent.data.name))
