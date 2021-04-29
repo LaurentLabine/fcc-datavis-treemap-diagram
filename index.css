@@ -5,6 +5,7 @@
 
 body, html {
   font: 25px sans-serif;
+  font-family: 'New Tegomin', serif;
 }
 
 form {
@@ -20,6 +21,7 @@ h1, h2 {
 svg {
   display: block;
   margin: auto;
+  padding: 10px;
 }
 
 #tooltip {

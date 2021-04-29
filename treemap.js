@@ -1,36 +1,30 @@
 import { Legend } from "./src/legend.js"
 
-const datasets = {
-  kickstarter: {
-    name: 'kickstarter',
+const datasets = [
+  {
+    name: 'Kickstarter',
     title: 'Kickstarter Pledges',
     description: 'Top 100 highest funded projects on Kickstarter grouped by category',
     url: 'https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/kickstarter-funding-data.json'
   },
-  videogames: {
-    name: 'videogames',
-    title: 'Video Games Sales',
-    description: 'Top 100 best-selling video games grouped by platform',
-    url: 'https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json'
-  },
-  movies: {
-    name: 'movies',
+  {
+    name: 'Movies',
     title: 'Movie Sales',
     description: 'Top 100 highest grossing movies grouped by genre',
     url: 'https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/movie-data.json'
   },
-};
+  {
+    name: 'Video Game Sales Data Top 100',
+    title: 'Video Games Sales',
+    description: 'Top 100 best-selling video games grouped by platform',
+    url: 'https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json'
+  },
+];
 
-// design inspired from : https://observablehq.com/@d3/animated-treemap
-
-//Radio selection logic
-const radios = document.getElementsByName('selection');
-let selection = "";
 const colorScale = d3.scaleOrdinal(d3.schemeCategory20)
-const margin = { top: 10, right: 10, bottom: 10, left: 10 },
+const margin = { top: 0, right: 0, bottom: 0, left: 0 },
   width = 960 - margin.left - margin.right,
   height = 570 - margin.top - margin.bottom;
-
 
 //tooltip stuff
 var tooltip = d3.select("body")
@@ -38,7 +32,8 @@ var tooltip = d3.select("body")
   .style("opacity", 0)
   .attr("class", "tooltip")
   .attr("id", "tooltip")
-  .style("background-color", "white")
+  .style("background-color", "black")
+  .style("color", "white")
   .style("border", "solid")
   .style("border-width", "2px")
   .style("border-radius", "5px")
@@ -50,6 +45,7 @@ var mouseover = function (d) {
     .style("opacity", 1)
   d3.select(this)
     .style("stroke", "black")
+    .style("fill", "#ccff00")
 }
 var mousemove = function (d) {
 
@@ -65,11 +61,10 @@ var mouseleave = function (d) {
     .style("opacity", 0)
   d3.select(this)
     .style("stroke", "white")
+    .style("fill", d => colorScale(d.data.category))
 }
 
-
-// The svg
-// append the svg object to the body of the page
+// Treemap SVG Initialization
 const svg = d3.select("body")
   .append("svg")
   .attr("id", "treemap")
@@ -81,6 +76,7 @@ const svg = d3.select("body")
   .attr("transform",
     "translate(" + margin.left + "," + margin.top + ")")
 
+// Legend SVG Initialization
 const legendContainer = d3.select("body")
   .append("svg")
   .attr("id", "legend")
@@ -112,6 +108,8 @@ function drawTree(data) {
     .enter()
     .append("g")
     .attr("class", "cell")
+    .style("text-overflow", "clip")
+
     .attr("transform", d => `translate(${d.x0},${d.y0})`)
 
   let tile = cell.append("rect")
@@ -124,60 +122,78 @@ function drawTree(data) {
     .attr('height', d => d.y1 - d.y0)
     .attr("fill", d => colorScale(d.data.category))
     .style("stroke", "white")
+
     .on("mouseover", mouseover)
     .on("mousemove", mousemove)
     .on("mouseleave", mouseleave);
 
-  cell.append("text")
-    .selectAll("tspan")
-    .data(d => d.data.name.split(/(?=[A-Z][^A-Z])/g))
-    .enter().append("tspan")
-    .attr("class", "tile-container")
+  // Clip path
+  cell.selectAll('clipPath').append('clipPath')
+    .attr('id', d => 'clip-' + d.data.name)
+    .append('use')
+    .attr('xlink:href', d => '#' + d.data.name);
+
+  // Text
+  const textEnter = cell.append('text')
+    .attr('class', 'tile-text')
+    .attr('clip-path', d => 'url(#clip-' + d.data.id + ')');
+
+  const tspan = textEnter.selectAll('tspan')
+    .data(d => d.data.name.split(/(?=[A-Z][^A-Z])/g));
+
+  tspan.enter().append('tspan')
+    .merge(tspan)
     .style("font-size", "10px")
+
     .attr("x", 4)    // +10 to adjust position (more right)
     .attr("y", (d, i) => 10 + i * 10)    // +20 to adjust position (lower)
+    .attr('width', d => d.x1 - d.x0)
     .text(d => d)
-}
-
-const clearTree = () => {
-  svg.selectAll("*").remove();
-  d3.selectAll("Body").selectAll("#legend").remove();
 }
 
 const clearSVG = (selection) => {
   selection.selectAll("*").remove();
 }
 
+
+//Main Loop
 d3.queue()
-  .defer(d3.json, datasets.kickstarter.url)
-  .defer(d3.json, datasets.movies.url)
-  .defer(d3.json, datasets.videogames.url)
+  .defer(d3.json, datasets[0].url)
+  .defer(d3.json, datasets[1].url)
+  .defer(d3.json, datasets[2].url)
   .await((error, kickstarterData, movieSalesData, videoGameSalesData) => {
     if (error) throw error;
 
-    selection = 0;
-
     const data = [kickstarterData, movieSalesData, videoGameSalesData]
+    // Initial State
+    let dataset = data[0]
 
-    if (error)
-      throw error;
-
-    drawTree(data[selection])
-    Legend(data[selection], { width, margin, height }, colorScale, legendContainer)
+    drawTree(dataset)
+    Legend(dataset, { width, margin, height }, colorScale, legendContainer)
 
     //When Selection Changes
     d3.selectAll("input").on("change", function change(input) {
 
-      let selection = this.value
-      // Clear Tree
+      console.log(data)
+      console.log(this.value)
+      dataset = data[this.value]
+
+      console.log(dataset)
+
+      // Find the new Dataset in the list 
+      let datasetEntry = datasets.find(element => element.name === dataset.name)
+
+      // Update Title and description
+      document.getElementById("title").innerHTML = datasetEntry.title;
+      document.getElementById("description").innerHTML = datasetEntry.description;
+
+      // Clear everything
       clearSVG(svg);
-      //
       clearSVG(legendContainer);
 
-      // Draw new one
-      drawTree(data[selection])
-
-      Legend(data[selection], { width, margin, height }, colorScale, legendContainer)
+      // Re-draw the elements
+      drawTree(dataset)
+      Legend(dataset, { width, margin, height }, colorScale, legendContainer)
 
     });
   })

@@ -4,20 +4,6 @@ export const Legend = (data, props, colorScale, container) => {
     margin
   } = props;
 
-
-  // Ideally i'd put this in a constructor
-
-  // const legendContainer = d3.select("body")
-  //   .append("svg")
-  //   .attr("id", "legend")
-  //   .attr("class", "legend")
-  //   .attr("width", width + margin.left + margin.right)
-  //   .attr("height", 100)
-  //   .append("g")
-  //   .attr("id", "legend-container")
-  //   .attr("transform",
-  //     "translate(" + margin.left + "," + margin.top + ")")
-
   const legend = container.selectAll('g')
     .data(data.children)
     .enter()
