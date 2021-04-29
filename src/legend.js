@@ -1,21 +1,24 @@
-export const Legend = (data, props, colorScale) => {
+export const Legend = (data, props, colorScale, container) => {
   const {
     width = 600,
     margin
   } = props;
 
-  const legendContainer = d3.select("body")
-    .append("svg")
-    .attr("id", "legend")
-    .attr("class", "legend")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", 100)
-    .append("g")
-    .attr("id", "legend-container")
-    .attr("transform",
-      "translate(" + margin.left + "," + margin.top + ")")
 
-  const legend = legendContainer.selectAll('g')
+  // Ideally i'd put this in a constructor
+
+  // const legendContainer = d3.select("body")
+  //   .append("svg")
+  //   .attr("id", "legend")
+  //   .attr("class", "legend")
+  //   .attr("width", width + margin.left + margin.right)
+  //   .attr("height", 100)
+  //   .append("g")
+  //   .attr("id", "legend-container")
+  //   .attr("transform",
+  //     "translate(" + margin.left + "," + margin.top + ")")
+
+  const legend = container.selectAll('g')
     .data(data.children)
     .enter()
     .append("g");
@@ -36,5 +39,5 @@ export const Legend = (data, props, colorScale) => {
     .style('font-size', "15px")
     .text((d) => d.name);
 
-  return legendContainer
+  return container
 }
