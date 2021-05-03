@@ -24,7 +24,8 @@ The three sets of data used for this project have been made available via freeCo
  
 The project answers the technical requirements as stated in the challenge located here: https://www.freecodecamp.org/learn/data-visualization/data-visualization-projects/visualize-data-with-a-treemap-diagram with the tests that can be run from the page itself.
 
-## Additional features include the ability to switch between the three datasets using the selector box added to the page.
+## Additional features include:
+* The ability to switch between the three datasets using the selector box added to the page.
 
 ## Possible improvements include the following:
 
