@@ -23,8 +23,8 @@ const datasets = [
 
 const colorScale = d3.scaleOrdinal(d3.schemeCategory20)
 const margin = { top: 0, right: 0, bottom: 0, left: 0 },
-  width = 960 - margin.left - margin.right,
-  height = 570 - margin.top - margin.bottom;
+  width = 1100 - margin.left - margin.right,
+  height = 600 - margin.top - margin.bottom;
 
 //tooltip stuff
 var tooltip = d3.select("body")
@@ -174,11 +174,7 @@ d3.queue()
     //When Selection Changes
     d3.selectAll("input").on("change", function change(input) {
 
-      console.log(data)
-      console.log(this.value)
       dataset = data[this.value]
-
-      console.log(dataset)
 
       // Find the new Dataset in the list 
       let datasetEntry = datasets.find(element => element.name === dataset.name)
