@@ -143,10 +143,10 @@ function drawTree(data) {
 
   tspan.enter().append('tspan')
     .merge(tspan)
-    .style("font-size", "10px")
+    .style("font-size", "14px")
 
     .attr("x", 4)    // +10 to adjust position (more right)
-    .attr("y", (d, i) => 10 + i * 10)    // +20 to adjust position (lower)
+    .attr("y", (d, i) => 15 + i * 15)    // +20 to adjust position (lower)
     .attr('width', d => d.x1 - d.x0)
     .text(d => d)
 }
