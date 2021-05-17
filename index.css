@@ -6,10 +6,11 @@
 body, html {
   font: 25px sans-serif;
   font-family: 'New Tegomin', serif;
+  padding-top: 3rem;
 }
 
 form {
-  /* padding-top: 20px; */
+  justify-content: center;
   text-align: center;
 }
 
