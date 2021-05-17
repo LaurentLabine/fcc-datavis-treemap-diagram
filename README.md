@@ -2,6 +2,8 @@
 
 See the result here: https://laurentlabine.github.io/fcc-datavis-treemap-diagram/
 
+Thumbnail available here : https://user-images.githubusercontent.com/20836468/118495801-d8903580-b723-11eb-97b4-527b262b26dd.png
+
 I built this project as part of freeCodeCamp's curriculum to learn and practice Data Visualization using D3.js library.
 
 The three sets of data used for this project have been made available via freeCodeCampe at the following URLs:
